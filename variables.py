@@ -3,16 +3,14 @@ from Brick import NormalBrick,UnbreakableBrick,ExplodingBrick
 from powerup import ExpandPaddle, ShrinkPaddle, PaddleGrab,BallFast
 WINDOW_WIDTH = 140
 WINDOW_HEIGHT = 40
-unbreakAmt = 10 # 1 in 10 bricks is unbreakable
-secs = 0           # seconds elapsed in the game
+unbreakAmt = 10     # 1 in 10 bricks is unbreakable
+secs = 0            # seconds elapsed in the game
 score = 0                               # score
-lives = 4
+lives = 5
 game_matrix = []
 mode='play'
 
 power_objects = [
-    ExpandPaddle(11,61,'EP',WINDOW_HEIGHT),
-    ShrinkPaddle(11,12,'SP',WINDOW_HEIGHT)
 ]
 
 def displayPowers():
@@ -149,6 +147,14 @@ for i in range(WINDOW_HEIGHT):
                 BrickOb[i][j] = ExplodingBrick(i,j,power_objects)
             else:
                 BrickOb[i][j] = UnbreakableBrick(i,j,power_objects)
+            if i == 10 and j % 5 == 0 :
+                power_objects.append(ExpandPaddle(i,j,None,WINDOW_HEIGHT))
+            elif i == 10 and j % 3 == 0:
+                power_objects.append(ShrinkPaddle(i,j,None,WINDOW_HEIGHT))
+            elif i == 10 and j % 7 == 0:
+                power_objects.append(PaddleGrab(i,j,None,WINDOW_HEIGHT))
+            # elif i == 10 and j % 4 == 0:
+            #     power_objects.append(BallFast(i,j,None,WINDOW_HEIGHT))
         else : 
             BrickOb[i][j] = None
 

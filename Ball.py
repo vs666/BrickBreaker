@@ -21,24 +21,27 @@ class Ball(Motion):
         self.vel_y = 0
         self.state = 'rest'
 
-    def check_death(self):
+    def check_death(self):      # Redundant now, updated to isDead()
         if self.x == self.lim_x-1:
             return True
         else:
             return False
 
-    def check_collision(self, fut_x, fut_y, plank):
+    def __check_collision(self, fut_x, fut_y, plank):
         global ar
         fut_x = int(fut_x)
         fut_y = int(fut_y)
         if fut_x <= 0 or fut_x >= self.lim_x - 1 or fut_y >= self.lim_y - 1 or fut_y <= 0:
             return 'wall'
         for i in range(int(fabs(self.vel_y)+1)):
-
-            if self.vel_y > 0 and ar[fut_x][int(self.y + i)] >= 3:
-                return 'brick'
-            if self.vel_y < 0 and ar[fut_x][int(self.y - i)] >= 3:
-                return 'brick'
+            for j in range(int(fabs(self.vel_x))+1):
+                av = j
+                if self.vel_x < 0:
+                    av = -1*av
+                if self.vel_y > 0 and ar[int(self.x + av)][int(self.y + i)] >= 3:
+                    return 'brick'
+                if self.vel_y < 0 and ar[int(self.x + av)][int(self.y - i)] >= 3:
+                    return 'brick'
         if (fut_x >= plank.x and self.x < plank.x) and ((plank.y + int(plank.wi) >= self.y and self.y >= plank.y - int(plank.wi))):
             return 'plank'
         elif (fut_x >= plank.x and self.x < plank.x) and self.y + self.vel_y <= plank.y + int(plank.wi) and self.y+self.vel_y >= plank.y + int(plank.wi):
@@ -58,48 +61,132 @@ class Ball(Motion):
 
         # else no collision has happened
 
-    def handle_wall_collision(self):
+    def __handle_wall_collision(self):
         if self.x + self.vel_x >= self.lim_x-1 or self.x + self.vel_x <= 0:
             self.vel_x = -1*self.vel_x
         if self.y + self.vel_y >= self.lim_y-1 or self.y + self.vel_y <= 0:
             self.vel_y = -1*self.vel_y
 
-    def handle_brick_collision(self):
+    def __handle_brick_collision(self):
         global brk
         xt = False
         yt = False
         pts = 0
-        for i in range(int(fabs(self.vel_y)+2)):
-            if self.vel_y > 0 and ar[int(self.x + self.vel_x)][int(self.y+i)] == 4:
-                a,b = brk[int(self.x + self.vel_x)][int(self.y+i)].collide(ar,brk)
-                pts+=b
+        pp = 0
+        if False:
+            ar[int(self.x)][int(self.y)]=0
+            tvel_x = fabs(self.vel_x)
+            tvel_y = fabs(self.vel_y)
+            
+            while self.x < self.lim_x - 1 and self.y < self.lim_y - 1 and (tvel_x > 0 or tvel_y > 0):
+                for i in range(3):
+                    if self.vel_x > 0:
+                        if ar[int(self.x+i)][int(self.y)] == 4:
+                            pts+=brk[int(self.x+i)][int(self.y)].destroy(ar,brk)
+                    else:
+                        if ar[int(self.x-i)][int(self.y)] == 4:
+                            pts+=brk[int(self.x-i)][int(self.y)].destroy(ar,brk)
+                    if self.vel_y > 0:
+                        if ar[int(self.x)][int(self.y+i)] == 4:
+                            pts+=brk[int(self.x)][int(self.y+i)].destroy(ar,brk)
+                    else:
+                        if ar[int(self.x)][int(self.y-i)]==4:
+                            pts+=brk[int(self.x)][int(self.y-i)].destroy(ar,brk)
+                    adsx = 1
+                    if self.vel_x < 0:
+                        adsx = -1
+                    adsy = 1
+                    if self.vel_y < 0:
+                        adsy = -1
+                    
+                    for j in range(3):
+                        if ar[int(self.x+(adsx*i))][int(self.y+(adsy*j))] == 4:
+                            pts+=brk[int(self.x+(adsx*i))][int(self.y+(adsy*j))].destroy(ar,brk)
+                if tvel_y <= tvel_x:
+                    avx = 1
+                    if self.vel_x < 0:
+                        avx = -1
+                    self.x += avx
+                    tvel_x-=1
+                if tvel_y >= tvel_x:
+                    avy = 1
+                    if self.vel_y < 0:
+                        avy = -1
+                    self.y += avy
+                    tvel_y-=1
+                    
+            # pp = ar[int(self.x)][int(self.y)]
+            ar[int(self.x)][int(self.y)]=1
+
+            return pts
+        tempVX = self.vel_x 
+        tempVY = self.vel_y
+        xsi = 1
+        if self.vel_x < 0:
+            xsi = -1
+        ysi = 1
+        if self.vel_y < 0:
+            ysi = -1
+        xdis = 0
+        ydis = 0
+        self.vel_x = xsi
+        self.vel_y = ysi
+        pts = 0
+        while fabs(xdis) < fabs(tempVX) or fabs(ydis) < fabs(tempVY):
+            xt = False
+            yt = False
+            for i in range(int(fabs(self.vel_y)+2)):
+                if self.vel_y > 0 and ar[int(self.x + self.vel_x)][int(self.y+i)] == 4:
+                    a,b = brk[int(self.x + self.vel_x)][int(self.y+i)].collide(ar,brk)
+                    pts+=b
+                    xt = True
+                if self.vel_y < 0 and ar[int(self.x + self.vel_x)][int(self.y-i)] == 4:
+                    a,b = brk[int(self.x + self.vel_x)][int(self.y-i)].collide(ar,brk)
+                    pts+=b
+                    xt = True
+            if self.vel_y > 0 and ar[int(self.x+self.vel_x)][int(self.y-1)] == 4:
                 xt = True
-            if self.vel_y < 0 and ar[int(self.x + self.vel_x)][int(self.y-i)] == 4:
-                a,b = brk[int(self.x + self.vel_x)][int(self.y-i)].collide(ar,brk)
+                a,b = brk[int(self.x+self.vel_x)][int(self.y-1)].collide(ar,brk)
                 pts+=b
+            if self.vel_y < 0 and ar[int(self.x + self.vel_x)][int(self.y+1)] == 4:
                 xt = True
-        if self.vel_y > 0 and ar[int(self.x+self.vel_x)][int(self.y-1)] == 4:
-            xt = True
-            a,b = brk[int(self.x+self.vel_x)][int(self.y-1)].collide(ar,brk)
-            pts+=b
-        if self.vel_y < 0 and ar[int(self.x + self.vel_x)][int(self.y+1)] == 4:
-            xt = True
-            a,b = brk[int(self.x+self.vel_x)][int(self.y+1)].collide(ar,brk)
-            pts+=b
-        if self.vel_y > 0 and ar[int(self.x)][int(self.y+1)] == 3:
-            yt = True
-            a,b = brk[int(self.x)][int(self.y+2)].collide(ar,brk)
-            pts+=b
-        if self.vel_y < 0 and ar[int(self.x)][int(self.y-1)] == 3:
-            yt = True
-            a,b = brk[int(self.x)][int(self.y-2)].collide(ar,brk)
-            pts+=b
-        if xt:
-            self.vel_x = -1*self.vel_x
-        if yt:
-            self.vel_y = -1*self.vel_y
+                a,b = brk[int(self.x+self.vel_x)][int(self.y+1)].collide(ar,brk)
+                pts+=b
+            if self.vel_y > 0 and ar[int(self.x)][int(self.y+1)] == 3:
+                yt = True
+                a,b = brk[int(self.x)][int(self.y+2)].collide(ar,brk)
+                pts+=b
+            if self.vel_y < 0 and ar[int(self.x)][int(self.y-1)] == 3:
+                yt = True
+                a,b = brk[int(self.x)][int(self.y-2)].collide(ar,brk)
+                pts+=b
+            if xt:
+                self.vel_x = -1*xsi
+            if yt:
+                self.vel_y = -1*ysi
+            if xt or yt:
+                self.vel_y *= fabs(tempVY)
+                self.vel_x *= fabs(tempVX)
+                return pts
+            if xdis != tempVX:
+                ar[int(self.x)][int(self.y)]=0
+                xdis += xsi
+                self.x += xsi
+                ar[int(self.x)][int(self.y)]=1
+            if ydis != tempVY:
+                ar[int(self.x)][int(self.y)]=0
+                ydis += ysi
+                self.y += ysi
+                ar[int(self.x)][int(self.y)]=1
+        if pts == 0:
+            self.vel_x = tempVX
+            self.vel_y = tempVY
         return pts
-    def handle_plank_collision(self, plank):
+
+        
+        
+
+    def __handle_plank_collision(self, plank):
         '''
                 All the plank collision logic here
         '''
@@ -137,13 +224,13 @@ class Ball(Motion):
             return False, 0
         if self.isDead():
             return True, 0
-        elif self.check_collision(self.x+self.vel_x, self.y+self.vel_y, plank) == 'plank':
-            self.handle_plank_collision(plank)
-        elif self.check_collision(self.x+self.vel_x, self.y+self.vel_y, plank) == 'wall':
-            self.handle_wall_collision()
-        elif self.check_collision(self.x+self.vel_x, self.y+self.vel_y, plank) == 'brick':
-            pts = self.handle_brick_collision()
-        if self.check_collision(self.x+self.vel_x, self.y+self.vel_y, plank) == 'None':
+        if self.__check_collision(self.x+self.vel_x, self.y+self.vel_y, plank) == 'brick':
+            pts = self.__handle_brick_collision()
+        if self.__check_collision(self.x+self.vel_x, self.y+self.vel_y, plank) == 'plank':
+            self.__handle_plank_collision(plank)
+        if self.__check_collision(self.x+self.vel_x, self.y+self.vel_y, plank) == 'wall':
+            self.__handle_wall_collision()
+        if self.__check_collision(self.x+self.vel_x, self.y+self.vel_y, plank) == 'None':
             ar[int(self.x)][int(self.y)] = 0
             self.x += self.vel_x
             self.y += self.vel_y
@@ -151,6 +238,9 @@ class Ball(Motion):
         return False, pts
 
     def launch_object(self):
-        self.vel_x = -1
-        self.vel_y = 1  
+        if self.vel_x == 0 and self.vel_y == 0:
+            self.vel_x = -1
+            self.vel_y = 1  
+        if self.vel_x > 0:
+            self.vel_x = -1*self.vel_x
         self.state = 'moving'

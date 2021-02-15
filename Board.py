@@ -34,7 +34,9 @@ class Board(Motion):
                 if power_objects[i].power_type == 'PG':
                     power_objects[i].charge(props)
                 elif power_objects[i].power_type == 'BF':
-                    power_objects[i].charge(self.ball_ob)
+                    from tempVar import ball_list
+                    for i in range(len(ball_list)):
+                        power_objects[i].charge(ball_list[i])
                 elif power_objects[i].power_type == 'BS':
                     power_objects[i].charge()
                 else:
