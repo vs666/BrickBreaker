@@ -12,11 +12,13 @@ import colorama
 from tempVar import ball_list
 
 MSG = '''
-    BBBBB   RRRRR   IIIII   CCCCC   K  K            BBBB    RRRR    EEEEE       A       K  K    EEEEE   RRRR                                
-    B    B  R   R     I     C       K K             B   B   R  R    E          A A      K K     E       R   R                               
-    BBBBB   RRRR      I     C       KK      ====    BBBB    RRR     EEE       A   A     KK      EEE     RRRR                                
-    B    B  R   R     I     C       K K             B   B   R  R    E        AAAAAAA    K K     E       R   R                               
-    BBBBB   R    R  IIIII   CCCCC   K  K            BBBB    R   R   EEEEE   A       A   K  K    EEEEE   R    R                              
+  ____           _          _        ____                          _                  
+ | __ )   _ __  (_)   ___  | | __   | __ )   _ __    ___    __ _  | | __   ___   _ __ 
+ |  _ \  | '__| | |  / __| | |/ /   |  _ \  | '__|  / _ \  / _` | | |/ /  / _ \ | '__|
+ | |_) | | |    | | | (__  |   <    | |_) | | |    |  __/ | (_| | |   <  |  __/ | |   
+ |____/  |_|    |_|  \___| |_|\_\   |____/  |_|     \___|  \__,_| |_|\_\  \___| |_|   
+                                                                                      
+
 '''
 
 '''
@@ -102,7 +104,7 @@ def showDashboard():
     sys.stdout.write(colorama.Fore.WHITE+'Lives : ')
     for i in range(lives):
         sys.stdout.write(colorama.Back.BLACK+' @ ')
-    for i in range(4-lives):
+    for i in range(5-lives):
         sys.stdout.write(colorama.Back.BLACK+' X ')
     sys.stdout.write('                                                                                                                        ')
     # sys.stdout.write(colorama.Back.RESET)
@@ -121,6 +123,7 @@ ball = Ball(WINDOW_HEIGHT-11, WINDOW_WIDTH/2, WINDOW_HEIGHT, WINDOW_WIDTH)
 plank = Board(WINDOW_HEIGHT-10, WINDOW_WIDTH-1,
               WINDOW_HEIGHT-10, WINDOW_WIDTH/2,ball)
 ball_list.append(ball)
+ball_list.append(Ball(WINDOW_HEIGHT-11, WINDOW_WIDTH/2+1, WINDOW_HEIGHT, WINDOW_WIDTH))
 '''
 Game Loop
 '''
@@ -145,35 +148,49 @@ while True:
             mode='pause'
         else:
             mode='play'
-    elif chinp == 's' and ball.state == 'rest':  # launch the ball
-        ball.launch_object()
+    elif chinp == 's':
+        for jojo in range(len(ball_list)):
+            if ball_list[jojo] != None and ball_list[jojo].state == 'rest':  # launch the ball
+                ball_list[jojo].launch_object()
     elif chinp == 'a' or chinp == 'd':
         plank.move(chinp)
     if mode=='pause':
         continue
-    plank.placePlank()
-    # zod = 1
-    # while zod < len(ball_list):
-    #     if ball_list[zod] != None:
-    #         try:
-    #             ball_list[zod].move_object(plank)
-    #         except:
-    #             print(ball_list)
-    #             sleep(10)
+    plank.placePlank(Ball)
+    zod = 0
+    while zod < len(ball_list):
+        if ball_list[zod]==None:
+            zod+=1
+            continue
+        az,bz = ball_list[zod].move_object(plank)
+        score+=bz    
+        if az:
+            cl = 0
+            for jon in range(len(ball_list)):
+                if ball_list[jon]!= None:
+                    cl+=1
+            if cl <= 1:
+                lives -= 1
+                if props["PGtime"]==1:
+                    props["PaddleGrab"] = False
+                else:
+                    props["PGtime"] = 1
 
-
-    az,bz = ball_list[0].move_object(plank)
-    score+=bz    
-    if az:
-        lives -= 1
-        if lives == 0:
-            sys.stdout.write('Game Over\n')
-            sleep(1)            # asthetics
-            sys.stdout.write('\033[?25h')
-            exit(0)
-        else:
-            game_matrix[int(ball.x)][int(ball.y)] = 0
-            ball.reset(plank.x-1, plank.y)
-            game_matrix[int(ball.x)][int(ball.y)] = 1
+                if props["TBtime"]==1:
+                    props["ThroughBall"] = False
+                else:
+                    props["TBtime"] = 1
+                if lives == 0:
+                    from gameover import display_end
+                    display_end(score)
+                    exit(0)
+                else:
+                    game_matrix[int(ball_list[zod].x)][int(ball_list[zod].y)] = 0
+                    ball_list[zod].reset(plank.x-1, plank.y)
+                    game_matrix[int(ball_list[zod].x)][int(ball_list[zod].y)] = 1
+            else:
+                game_matrix[int(ball_list[zod].x)][int(ball_list[zod].y)] = 0
+                ball_list[zod]=None
+        zod+=1
 
 sys.stdout.write('\033[?25h')

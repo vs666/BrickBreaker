@@ -73,7 +73,7 @@ class Ball(Motion):
         yt = False
         pts = 0
         pp = 0
-        if False:
+        if props["ThroughBall"]:
             ar[int(self.x)][int(self.y)]=0
             tvel_x = fabs(self.vel_x)
             tvel_y = fabs(self.vel_y)

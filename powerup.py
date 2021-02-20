@@ -1,7 +1,6 @@
 import colorama
 from tempVar import ball_list
 
-
 class PowerUp:
     def __init__(self, x, y, power_type, x_limit):
         self.x = x
@@ -13,8 +12,27 @@ class PowerUp:
 
     def display(self, x, y, ch):
         if self.visible:
-            print("\033["+str(int(x+11))+";"+str(int(y))+"f" +
+            if self.power_type == 'EP':
+                print("\033["+str(int(x+11))+";"+str(int(y))+"f" +
                   colorama.Back.LIGHTMAGENTA_EX+colorama.Fore.YELLOW+str(ch))
+            elif self.power_type == 'BS':
+                print("\033["+str(int(x+11))+";"+str(int(y))+"f" +
+                  colorama.Back.LIGHTGREEN_EX+colorama.Fore.YELLOW+str(ch))
+            elif self.power_type == 'TB':
+                print("\033["+str(int(x+11))+";"+str(int(y))+"f" +
+                  colorama.Back.LIGHTBLUE_EX+colorama.Fore.YELLOW+str(ch))
+            elif self.power_type == 'SP':
+                print("\033["+str(int(x+11))+";"+str(int(y))+"f" +
+                  colorama.Back.LIGHTRED_EX+colorama.Fore.YELLOW+str(ch))
+            elif self.power_type == 'BS':
+                print("\033["+str(int(x+11))+";"+str(int(y))+"f" +
+                  colorama.Back.LIGHTCYAN_EX+colorama.Fore.YELLOW+str(ch))
+            elif self.power_type == 'PG':
+                print("\033["+str(int(x+11))+";"+str(int(y))+"f" +
+                  colorama.Back.WHITE+colorama.Fore.YELLOW+str(ch))
+            else:
+                print("\033["+str(int(x+11))+";"+str(int(y))+"f" +
+                  colorama.Back.YELLOW+colorama.Fore.YELLOW+str(ch))
         if self.moving:
             self.x += 1
 
@@ -25,6 +43,8 @@ class PowerUp:
         else:
             return False
 
+    def charge(self):
+        pass # execute polymorphism
 
 class ExpandPaddle(PowerUp):
     def __init__(self, x, y, paddle_object, x_limit):
@@ -54,9 +74,11 @@ class PaddleGrab(PowerUp):
     def __init__(self, x, y, paddle_object, x_limit):
         super().__init__(x, y, 'PG', x_limit)
         self.paddle_object = paddle_object
+        
 
     def charge(self, props):
         props["PaddleGrab"] = True
+        props["PGtime"] = 0
         self.visible = False
 
 
@@ -80,17 +102,24 @@ class BallSlow(PowerUp):
             ball_ob.vel_x -= 1
         # import time a
 
-# class BallSplit(PowerUp):
-#     def __init__(self,x,y,paddle_object,x_limit):
-#         super().__init__(x,y,'BS',x_limit)
+class ThroughBall(PowerUp):
+    def __init__(self, x, y, paddle_object, x_limit):
+        super().__init__(x, y, 'TB', x_limit)
 
-#     def charge(self,Ball):
-#         global ball_list
-#         new_list = []
-#         for i in range(len(ball_list)):
-#             if ball_list[i] != None:
-#                 new_list.append(Ball(ball_list[i].x,ball_list[i].y,ball_list[i].lim_x,ball_list[i].lim_y))
-#                 new_list[-1].vel_x = ball_list[i].vel_x
-#                 new_list[-1].vel_y = -1*ball_list[i].vel_y
-#         for i in range(len(new_list)):
-#             ball_list.append(new_list[i])
+    def charge(self, props):
+        self.visible = False
+        props["ThroughBall"]=True
+        props["TBtime"]=0
+        
+class BallSplit(PowerUp):
+    def __init__(self,x,y,paddle_object,x_limit):
+        super().__init__(x,y,'BS',x_limit)
+
+    def charge(self,Ball):
+        print("BALL SPLIT")
+        le = len(ball_list)
+        self.visible = False
+        for i in range(le):
+            if ball_list[i] != None:
+                ball_list.append(Ball(ball_list[i].x,ball_list[i].y,ball_list[i].lim_x, ball_list[i].lim_y))
+        # done    

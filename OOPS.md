@@ -1,33 +1,3 @@
-# The Brick Breaker Game
-
-> Developer : Varul Srivastava  
-> Roll No. : 2019111015     
-> Developed as a part of DASS Assignment 2 in Spring 2021
-
-
-## Features Implemented from assignment document
-
-All features mentioned in the assignment document were implemented. (Document attached)
-
-## Extra Features (Apart from assignment document)  
-1. Exploding bricks implemented as a bonus feature.
-2. End Screen implemented for asthetics.   
-3. Pause/ Play button implemented.
-4. Scoreboard of all games played implemented for realistic nature of game.
-5. Code logic is a sweet mixture of speed, and good playing quality, and non-trivial implementation was done in some parts to make it so.
-
-
-## Assumptions 
-
-1. The implementation of different deviation angle for collision with different parts of the paddle is handled differently. I would discuss the problem with the method proposed in assignment document and later explain how I resolve the issue using a better method :   
-    * **Issue** : The y velocity is added on after every collision, and we cannot play the game after the y velocity becomes too high, so even on playing well, the game becomes unplayable after some collisions.
-    * **Resolution** : Instead of deviating via additive velocity, I have implemented a fixed velocity change to y component, ranging from 1 at the center, and going upto +l on either side for a 2*l-1 size paddle.   
-2. Power Ups are implemented either till the end of the next life of the ball, or in case of fast ball, for the end of game, or till a corresponding slow ball power up is encountered. It is because, for grabbing a power up, often we need to sacrifice the ball, and so the gaining of powerup will be useless in these cases.  
-3. Zoom level of the terminal will be less than the trivial zoom level of normal linux terminals. This is because the environment used for testing this game had small font size at terminal.   
-4. The terminal background will be preferably black, as the colors used for bricks can collide with background color, creating confusion.   
-
-
-
 ## Class Motion
 
 ### Member Methods

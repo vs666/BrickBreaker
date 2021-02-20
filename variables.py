@@ -1,6 +1,6 @@
 import random
 from Brick import NormalBrick,UnbreakableBrick,ExplodingBrick
-from powerup import ExpandPaddle, ShrinkPaddle, PaddleGrab,BallFast
+from powerup import ExpandPaddle, ShrinkPaddle, PaddleGrab,BallFast, BallSlow, BallSplit, ThroughBall
 WINDOW_WIDTH = 140
 WINDOW_HEIGHT = 40
 unbreakAmt = 10     # 1 in 10 bricks is unbreakable
@@ -24,7 +24,7 @@ powerups = {"expand_paddle":'EP',
             "catch_ball":'CB',
             "fire_ball":'FB'
             }
-props = {"PaddleGrab":False}
+props = {"PaddleGrab":False, "ThroughBall":False,"PGtime":1,"TBtime":1}
 
 ''' 
 Creation and Initialization of Bricks
@@ -33,18 +33,20 @@ Creation and Initialization of Bricks
 '''
     Bricks look like this : 
 0         1         2         3         4         5         6         7         8         9        10         11
-012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
-1    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]
+ 012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+0                                                                                             
+1                                                                                               
 2    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]
-3               [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]
+3    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]
 4               [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]
-5    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]                    
-6    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]
-7               [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]
+5               [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]
+6    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]                    
+7    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]
 8               [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]
-9    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]                    
+9               [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]
 0    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]                    
-1
+1    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]    [=][=][=][=][=]                    
+2
 '''
 
 
@@ -143,18 +145,24 @@ for i in range(WINDOW_HEIGHT):
                 BrickOb[11][j] = ExplodingBrick(11,j,power_objects)
             elif random.randint(1,unbreakAmt) != 1:
                 BrickOb[i][j] = NormalBrick(i,j,random.randint(1,3),power_objects)
-            elif random.randint(1,unbreakAmt) <= 5:
+            elif random.randint(1,unbreakAmt) <= 3:
                 BrickOb[i][j] = ExplodingBrick(i,j,power_objects)
             else:
                 BrickOb[i][j] = UnbreakableBrick(i,j,power_objects)
-            if i == 10 and j % 5 == 0 :
-                power_objects.append(ExpandPaddle(i,j,None,WINDOW_HEIGHT))
-            elif i == 10 and j % 3 == 0:
-                power_objects.append(ShrinkPaddle(i,j,None,WINDOW_HEIGHT))
-            elif i == 10 and j % 7 == 0:
+            
+            
+            if i == 10 and j < 20 :
+                power_objects.append(BallFast(i,j,None,WINDOW_HEIGHT))
+            elif i == 10 and j < 40:
                 power_objects.append(PaddleGrab(i,j,None,WINDOW_HEIGHT))
-            # elif i == 10 and j % 4 == 0:
-            #     power_objects.append(BallFast(i,j,None,WINDOW_HEIGHT))
+            elif i == 10 and j < 60:
+                power_objects.append(BallSplit(i,j,None,WINDOW_HEIGHT))
+            elif i == 10 and j < 70:
+                power_objects.append(ThroughBall(i,j,None,WINDOW_HEIGHT))
+            elif i == 10 and j < 80:
+                power_objects.append(ExpandPaddle(i,j,None,WINDOW_HEIGHT))
+            elif i == 10 and j < 90:
+                power_objects.append(ShrinkPaddle(i,j,None,WINDOW_HEIGHT))
         else : 
             BrickOb[i][j] = None
 

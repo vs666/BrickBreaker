@@ -26,7 +26,7 @@ class Brick:
         self.state = 'alive'
         self.poo = poo
     
-    def remove(self,ar):
+    def _remove(self,ar):
         # global ar
         if ar[int(self.x)][int(self.y)] != 4:
             print('X,Y where we find error :',self.x,self.y)
@@ -57,7 +57,7 @@ class NormalBrick(Brick):
         self.level-=1
         from variables import score
         if self.level == 0:
-            self.remove(ar)
+            self._remove(ar)
             self.state = 'dead'
             score+=3
             return self.state,score
@@ -100,7 +100,7 @@ class UnbreakableBrick(Brick):
 class ExplodingBrick(Brick):
     def __init__(self,pos_x,pos_y,poo):
         super().__init__(pos_x,pos_y,poo)
-        self.level = 100
+        self.level = 30
 
     def collide(self,ar,brickObj):
         self.check_powerUp()
@@ -136,3 +136,5 @@ class ExplodingBrick(Brick):
         ar[int(self.x)][int(self.y-1)]=0
         ar[int(self.x)][int(self.y+1)]=0
         return sc_su
+
+
